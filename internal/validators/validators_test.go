@@ -18,24 +18,24 @@ func TestValidateCPF(t *testing.T) {
 		{"CPF válido com espaços", " 111.444.777-35 ", true},
 		{"CPF válido alternativo", "12345678909", true},
 		{"CPF válido conhecido", "11122233396", true},
-		
+
 		// CPFs inválidos - sequências repetidas
 		{"CPF inválido - zeros", "00000000000", false},
 		{"CPF inválido - uns", "11111111111", false},
 		{"CPF inválido - sequência de 2", "22222222222", false},
 		{"CPF inválido - sequência de 9", "99999999999", false},
-		
+
 		// CPFs inválidos - tamanho incorreto
 		{"CPF muito curto", "123456789", false},
 		{"CPF muito longo", "1234567890123", false},
 		{"CPF vazio", "", false},
 		{"CPF com apenas espaços", "   ", false},
-		
+
 		// CPFs inválidos - caracteres não numéricos (sanitização remove caracteres)
 		{"CPF com letras", "abcdefghijk", false},
 		{"CPF com caracteres especiais (vira números válidos)", "111@444#777&35", true},
 		{"CPF parcialmente numérico (vira números válidos)", "111a444b777c35", true},
-		
+
 		// CPFs inválidos - dígitos verificadores incorretos
 		{"CPF com primeiro dígito incorreto", "11144477736", false},
 		{"CPF com segundo dígito incorreto", "11144477734", false},
@@ -65,24 +65,24 @@ func TestValidateCNPJ(t *testing.T) {
 		{"CNPJ válido com espaços", " 11.222.333/0001-81 ", true},
 		{"CNPJ válido alternativo", "12345678000195", true},
 		{"CNPJ válido real", "11444777000161", true},
-		
+
 		// CNPJs inválidos - sequências repetidas
 		{"CNPJ inválido - zeros", "00000000000000", false},
 		{"CNPJ inválido - uns", "11111111111111", false},
 		{"CNPJ inválido - sequência de 2", "22222222222222", false},
 		{"CNPJ inválido - sequência de 9", "99999999999999", false},
-		
+
 		// CNPJs inválidos - tamanho incorreto
 		{"CNPJ muito curto", "123456789", false},
 		{"CNPJ muito longo", "123456789012345", false},
 		{"CNPJ vazio", "", false},
 		{"CNPJ com apenas espaços", "   ", false},
-		
+
 		// CNPJs inválidos - caracteres não numéricos (sanitização remove caracteres)
 		{"CNPJ com letras", "abcdefghijklmn", false},
 		{"CNPJ com caracteres especiais (vira números válidos)", "11@222#333&0001$81", true},
 		{"CNPJ parcialmente numérico (vira números válidos)", "11a222b333c0001d81", true},
-		
+
 		// CNPJs inválidos - dígitos verificadores incorretos
 		{"CNPJ com primeiro dígito incorreto", "11222333000182", false},
 		{"CNPJ com segundo dígito incorreto", "11222333000180", false},
@@ -115,7 +115,7 @@ func TestValidateBrazilianPhone(t *testing.T) {
 		{"Celular com código país", "5511987654321", true},
 		{"Celular RS", "51987654321", true},
 		{"Celular BA", "71987654321", true},
-		
+
 		// Telefones válidos - fixo
 		{"Fixo SP sem formatação", "1123456789", true},
 		{"Fixo SP com formatação", "(11) 2345-6789", true},
@@ -124,13 +124,13 @@ func TestValidateBrazilianPhone(t *testing.T) {
 		{"Fixo com código país", "551123456789", true},
 		{"Fixo RS", "5123456789", true},
 		{"Fixo BA", "7123456789", true},
-		
+
 		// Telefones inválidos - tamanho incorreto
 		{"Muito curto", "123456789", false},
 		{"Muito longo", "12345678901234", false},
 		{"Vazio", "", false},
 		{"Apenas espaços", "   ", false},
-		
+
 		// Telefones inválidos - DDD inválido
 		{"DDD inexistente 00", "0087654321", false},
 		{"DDD inexistente 01", "0187654321", false},
@@ -151,18 +151,18 @@ func TestValidateBrazilianPhone(t *testing.T) {
 		{"DDD inexistente 78", "7887654321", false},
 		{"DDD inexistente 80", "8087654321", false},
 		{"DDD inexistente 90", "9087654321", false},
-		
+
 		// Telefones aceitos pelo algoritmo atual (comportamento real)
 		{"Telefone 10 dígitos sem 9", "1187654321", true}, // Considerado fixo pelo algoritmo
 		{"Telefone RJ 10 dígitos", "2187654321", true},    // Considerado fixo pelo algoritmo
 		{"Celular 11 dígitos com 9", "11987654321", true}, // Celular válido
-		
+
 		// Telefones inválidos - primeiro dígito inválido para fixo
 		{"Fixo começando com 0", "1103456789", false},
 		{"Fixo começando com 1", "1113456789", false},
-		
+
 		// Telefones inválidos - caracteres não numéricos (sanitização remove)
-		{"Com letras (vira válido)", "11a9876b5432c1", true},          // Sanitização remove letras
+		{"Com letras (vira válido)", "11a9876b5432c1", true},                // Sanitização remove letras
 		{"Com caracteres especiais (vira válido)", "(11) 98765-432a", true}, // Sanitização remove formatação
 		{"Com hífen no meio (vira válido)", "119-8765-4321", true},          // Sanitização remove hífen
 	}
@@ -476,7 +476,7 @@ func TestValidateEmail(t *testing.T) {
 		{"Email com subdomínio", "contato@mail.empresa.com.br", true},
 		{"Email educacional", "aluno@universidade.edu.br", true},
 		{"Email governo", "funcionario@governo.gov.br", true},
-		
+
 		// Emails inválidos
 		{"Email sem @", "email.com", false},
 		{"Email sem domínio", "email@", false},
@@ -589,13 +589,13 @@ func TestCalculateVerifierDigit(t *testing.T) {
 		sum      int
 		expected int
 	}{
-		{"Resto menor que 2 - caso 0", 0, 0},    // 0 % 11 = 0, 0 < 2, então 0
-		{"Resto menor que 2 - caso 1", 1, 0},    // 1 % 11 = 1, 1 < 2, então 0
-		{"Resto igual a 2", 2, 9},               // 2 % 11 = 2, 2 >= 2, então 11 - 2 = 9
-		{"Resto maior que 2", 15, 7},            // 15 % 11 = 4, 4 >= 2, então 11 - 4 = 7
-		{"Soma 10", 10, 1},                      // 10 % 11 = 10, 10 >= 2, então 11 - 10 = 1
-		{"Soma 100", 100, 0},                    // 100 % 11 = 1, 1 < 2, então 0
-		{"Soma 50", 50, 5},                      // 50 % 11 = 6, 6 >= 2, então 11 - 6 = 5
+		{"Resto menor que 2 - caso 0", 0, 0}, // 0 % 11 = 0, 0 < 2, então 0
+		{"Resto menor que 2 - caso 1", 1, 0}, // 1 % 11 = 1, 1 < 2, então 0
+		{"Resto igual a 2", 2, 9},            // 2 % 11 = 2, 2 >= 2, então 11 - 2 = 9
+		{"Resto maior que 2", 15, 7},         // 15 % 11 = 4, 4 >= 2, então 11 - 4 = 7
+		{"Soma 10", 10, 1},                   // 10 % 11 = 10, 10 >= 2, então 11 - 10 = 1
+		{"Soma 100", 100, 0},                 // 100 % 11 = 1, 1 < 2, então 0
+		{"Soma 50", 50, 5},                   // 50 % 11 = 6, 6 >= 2, então 11 - 6 = 5
 	}
 
 	for _, tt := range tests {
@@ -625,18 +625,18 @@ func TestIsValidDDD(t *testing.T) {
 		{"DDD SP 17", "17", true},
 		{"DDD SP 18", "18", true},
 		{"DDD SP 19", "19", true},
-		
+
 		// DDDs válidos do RJ
 		{"DDD RJ 21", "21", true},
 		{"DDD RJ 22", "22", true},
 		{"DDD RJ 24", "24", true},
-		
+
 		// DDDs válidos do RS
 		{"DDD RS 51", "51", true},
 		{"DDD RS 53", "53", true},
 		{"DDD RS 54", "54", true},
 		{"DDD RS 55", "55", true},
-		
+
 		// DDDs inválidos
 		{"DDD inválido 00", "00", false},
 		{"DDD inválido 01", "01", false},
