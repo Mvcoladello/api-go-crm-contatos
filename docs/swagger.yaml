@@ -1,0 +1,364 @@
+openapi: 3.0.0
+info:
+  title: CRM Contatos API
+  description: API para gerenciamento de contatos em um sistema CRM
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desenvolvimento
+  - url: https://api.example.com
+    description: Servidor de produção
+
+paths:
+  /contacts:
+    get:
+      summary: Lista todos os contatos
+      description: Retorna uma lista paginada de contatos
+      tags:
+        - Contatos
+      parameters:
+        - name: page
+          in: query
+          description: Número da página (padrão 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de itens por página (padrão 10, máximo 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Lista de contatos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Cria um novo contato
+      description: Cria um novo contato no sistema
+      tags:
+        - Contatos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInput'
+      responses:
+        '201':
+          description: Contato criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /contacts/{id}:
+    get:
+      summary: Busca um contato por ID
+      description: Retorna os detalhes de um contato específico
+      tags:
+        - Contatos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único do contato
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contato encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '404':
+          description: Contato não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Atualiza um contato
+      description: Atualiza os dados de um contato existente
+      tags:
+        - Contatos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único do contato
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInput'
+      responses:
+        '200':
+          description: Contato atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Contato não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove um contato
+      description: Remove um contato do sistema
+      tags:
+        - Contatos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único do contato
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contato removido com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Contato removido com sucesso"
+        '404':
+          description: Contato não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /health:
+    get:
+      summary: Verifica a saúde da API
+      description: Endpoint para verificar se a API está funcionando
+      tags:
+        - Sistema
+      responses:
+        '200':
+          description: API funcionando corretamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2023-10-01T12:00:00Z"
+
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        nome:
+          type: string
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        telefone:
+          type: string
+          example: "11999999999"
+        cpf_cnpj:
+          type: string
+          example: "12345678901"
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    ContactInput:
+      type: object
+      required:
+        - nome
+        - email
+        - telefone
+        - cpf_cnpj
+      properties:
+        nome:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          example: "joao@email.com"
+        telefone:
+          type: string
+          pattern: '^[0-9]{10,11}$'
+          example: "11999999999"
+        cpf_cnpj:
+          type: string
+          pattern: '^[0-9]{11}$|^[0-9]{14}$'
+          example: "12345678901"
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 100
+        total_pages:
+          type: integer
+          example: 10
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Dados inválidos"
+            details:
+              type: string
+              example: "O campo email é obrigatório"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Contatos
+    description: Operações relacionadas aos contatos
+  - name: Sistema
+    description: Operações do sistema

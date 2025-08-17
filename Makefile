@@ -39,19 +39,46 @@ test-validators: ## Executa apenas os testes dos validadores
 	@echo "🧪 Executando testes dos validadores..."
 	go test -v ./internal/validators/
 
-test-coverage: ## Executa testes com cobertura
-	@echo "📊 Executando testes com cobertura..."
-	go test -v -coverprofile=coverage.out ./...
+# Quality Commands
+lint: ## Executa linter
+	@echo "🔍 Executando linter..."
+	golangci-lint run
+
+format: ## Formata o código
+	@echo "✨ Formatando código..."
+	gofmt -w .
+	goimports -w .
+
+# Performance & Security Tests
+benchmark: ## Executa testes de performance
+	@echo "⚡ Executando benchmarks..."
+	go test -bench=. -benchmem ./...
+
+race: ## Testa condições de corrida
+	@echo "🏃 Testando race conditions..."
+	go test -race ./...
+
+coverage: ## Gera relatório de cobertura
+	@echo "📊 Gerando relatório de cobertura..."
+	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
+	@echo "Relatório gerado em: coverage.html"
 
-test-coverage-validators: ## Executa testes dos validadores com cobertura
-	@echo "📊 Executando testes dos validadores com cobertura..."
-	go test -v -coverprofile=validators_coverage.out ./internal/validators/
-	go tool cover -html=validators_coverage.out -o validators_coverage.html
+test-integration: ## Executa testes de integração
+	@echo "🔗 Executando testes de integração..."
+	go test -tags=integration ./...
 
-bench-validators: ## Executa benchmarks dos validadores
-	@echo "⚡ Executando benchmarks dos validadores..."
-	go test -bench=. ./internal/validators/
+test-all: ## Executa todos os tipos de teste
+	@echo "🧪 Executando todos os testes..."
+	$(MAKE) test
+	$(MAKE) benchmark
+	$(MAKE) race
+	$(MAKE) coverage
+
+# Security
+security-scan: ## Executa scan de segurança
+	@echo "🔒 Executando scan de segurança..."
+	gosec ./...
 
 # Docker Commands
 docker-build: ## Constrói a imagem Docker
@@ -86,29 +113,32 @@ db-migrate: ## Executa migração do banco
 	@echo "📊 Executando migração..."
 	go run -tags migrate scripts/migrate.go
 
+db-migrate-down: ## Reverte última migração
+	@echo "⬇️ Revertendo migração..."
+	go run -tags migrate scripts/migrate.go -action=down
+
+db-migrate-status: ## Mostra status das migrações
+	@echo "📋 Status das migrações..."
+	go run -tags migrate scripts/migrate.go -action=status
+
+db-migrate-reset: ## Reseta todas as migrações
+	@echo "🔄 Resetando migrações..."
+	go run -tags migrate scripts/migrate.go -action=reset
+
 db-reset: ## Reseta o banco de dados
 	@echo "🗑️ Resetando banco de dados..."
 	rm -f crm_contatos.db
 	$(MAKE) db-migrate
 	$(MAKE) seed
 
-# Quality Commands
-lint: ## Executa linter
-	@echo "🔍 Executando linter..."
-	golangci-lint run
+# API Documentation
+swagger-gen: ## Gera documentação Swagger
+	@echo "📚 Gerando documentação Swagger..."
+	swag init -g main.go -o docs/
 
-format: ## Formata o código
-	@echo "✨ Formatando código..."
-	gofmt -w .
-	goimports -w .
-
-# Install Commands
-install-deps: ## Instala dependências de desenvolvimento
-	@echo "📦 Instalando dependências..."
-	go mod download
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install github.com/air-verse/air@latest
+swagger-serve: ## Serve documentação Swagger
+	@echo "🌐 Servindo documentação Swagger..."
+	@echo "Acesse: http://localhost:3000/docs/"
 
 # Production Commands
 deploy: ## Deploy para produção
@@ -120,3 +150,19 @@ deploy: ## Deploy para produção
 health-check: ## Verifica saúde da aplicação
 	@echo "💚 Verificando saúde da aplicação..."
 	curl -f http://localhost:3000/health || echo "❌ Aplicação não está respondendo"
+
+# Install Commands
+install-deps: ## Instala dependências de desenvolvimento
+	@echo "📦 Instalando dependências..."
+	go mod download
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/air-verse/air@latest
+	go install github.com/swaggo/swag/cmd/swag@latest
+	go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+
+install-swagger: ## Instala dependências do Swagger
+	@echo "📚 Instalando Swagger..."
+	go get -u github.com/gofiber/swagger
+	go get -u github.com/swaggo/files
+	go get -u github.com/swaggo/swag

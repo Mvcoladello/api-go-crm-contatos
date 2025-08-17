@@ -4,20 +4,24 @@
 ![Fiber](https://img.shields.io/badge/Fiber-v2-00D9FF?style=for-the-badge&logo=fiber)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
+![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger)
 
-API REST moderna e eficiente para gerenciamento de contatos com validação robusta de documentos brasileiros (CPF/CNPJ) e telefones, desenvolvida em Go com Fiber Framework.
+API REST moderna e eficiente para gerenciamento de contatos com validação robusta de documentos brasileiros (CPF/CNPJ), telefones, rate limiting e documentação completa.
 
 ## 🚀 Características Principais
 
 - ✅ **CRUD Completo** - Criar, listar, buscar e deletar contatos
 - ✅ **Validação Brasileira** - CPF, CNPJ e telefones brasileiros
+- ✅ **Rate Limiting** - Proteção contra spam e ataques DDoS
+- ✅ **Swagger/OpenAPI** - Documentação interativa da API
+- ✅ **Migrations** - Sistema explícito de migração de banco
 - ✅ **Segurança** - Sanitização de entrada e prevenção XSS
 - ✅ **Performance** - Framework Fiber de alta performance
 - ✅ **Banco de Dados** - SQLite com GORM ORM
 - ✅ **Docker Ready** - Containerização completa com Nginx
-- ✅ **Testes Abrangentes** - Cobertura de testes unitários
+- ✅ **Testes Abrangentes** - Testes unitários, integração e performance
 - ✅ **Hot Reload** - Desenvolvimento com recarga automática
-- ✅ **Middleware** - Logging, CORS e validação
+- ✅ **Middleware** - Logging, CORS, rate limiting e validação
 - ✅ **Formatação Automática** - Dados brasileiros formatados
 
 ## 📋 Funcionalidades
@@ -34,13 +38,63 @@ API REST moderna e eficiente para gerenciamento de contatos com validação robu
 - **CNPJ**: Validação matemática + formatação automática  
 - **Telefone**: Validação de DDD + formatação brasileira
 - **Email**: Validação de formato + unicidade
+- **Rate Limiting**: Proteção contra abuso (configurável por endpoint)
 - **Sanitização**: Prevenção XSS e limpeza de dados
 - **Middleware**: Logging de requisições e tratamento de erros
+
+### 📚 Documentação
+- **Swagger UI**: Interface interativa para testar endpoints
+- **OpenAPI 3.0**: Especificação completa da API
+- **Exemplos**: Casos de uso documentados
+- **Schemas**: Modelos de dados validados
+
+### 🗄️ Banco de Dados
+- **Migrations**: Sistema de versionamento de schema
+- **Rollback**: Capacidade de reverter alterações
+- **Índices**: Otimização de consultas
+- **Constraints**: Integridade referencial
 
 ## 🏗️ Arquitetura
 
 ```
 📦 api-go-crm-contatos/
+├── 📚 docs/                       # Documentação Swagger/OpenAPI
+│   └── swagger.yaml               # Especificação OpenAPI
+├── 🗄️ migrations/                 # Sistema de migração
+│   ├── migrations.go              # Definições das migrações
+│   ├── migrator.go               # Engine de migração
+│   └── migrations_test.go        # Testes das migrações
+├── 📦 scripts/                    # Scripts utilitários
+│   ├── migrate.go                # CLI para migrações
+│   ├── seed.go                   # Dados de exemplo
+│   └── run-seed.sh              # Script de seed
+├── 🏠 internal/                   # Código da aplicação
+│   ├── 🎮 handlers/              # Controllers da API
+│   │   ├── contact_handler.go    # Endpoints de contatos
+│   │   ├── contact_handler_test.go # Testes dos handlers
+│   │   └── routes.go             # Definição de rotas
+│   ├── ⚙️ middleware/            # Middlewares personalizados
+│   │   ├── rate_limit.go         # Rate limiting
+│   │   ├── rate_limit_test.go    # Testes do rate limiting
+│   │   ├── logging.go            # Middleware de logging
+│   │   ├── process_input.go      # Processamento de entrada
+│   │   ├── sanitize.go           # Sanitização de dados
+│   │   ├── validation.go         # Validações
+│   │   └── middleware_test.go    # Testes dos middlewares
+│   ├── 📊 models/                # Modelos de dados
+│   │   ├── contact.go            # Modelo de contato
+│   │   └── responses.go          # Modelos de resposta
+│   ├── 🔧 services/              # Lógica de negócio
+│   │   └── contact_service.go    # Serviços de contato
+│   ├── 🛠️ utils/                 # Utilitários
+│   │   └── responses.go          # Helpers de resposta
+│   └── ✅ validators/            # Validadores específicos
+│       ├── cpf.go                # Validação de CPF
+│       ├── cnpj.go               # Validação de CNPJ
+│       ├── phone.go              # Validação de telefone
+│       ├── sanitizer.go          # Sanitização
+│       ├── examples.go           # Exemplos de uso
+│       └── validators_test.go    # Testes dos validadores
 ├── 🐳 docker-compose.yml          # Orquestração de containers
 ├── 🐳 docker-compose.dev.yml      # Ambiente de desenvolvimento
 ├── 🐳 Dockerfile                  # Imagem da aplicação
@@ -48,36 +102,60 @@ API REST moderna e eficiente para gerenciamento de contatos com validação robu
 ├── 📄 nginx.conf                  # Configuração do proxy reverso
 ├── 🚀 main.go                     # Ponto de entrada da aplicação
 ├── 📋 go.mod                      # Dependências do projeto
-├── 🧪 test_api.sh                 # Script de testes da API
-└── 📁 internal/
-    ├── 🎯 handlers/               # Controllers da API
-    │   ├── contact_handler.go     # CRUD de contatos
-    │   ├── contact_handler_test.go# Testes dos handlers
-    │   └── routes.go              # Definição de rotas
-    ├── 🔒 middleware/             # Middlewares da aplicação
-    │   ├── logging.go             # Log de requisições
-    │   ├── process_input.go       # Processamento de entrada
-    │   ├── sanitize.go            # Sanitização de dados
-    │   ├── validation.go          # Validação de dados
-    │   └── middleware_test.go     # Testes dos middlewares
-    ├── 📊 models/                 # Modelos de dados
-    │   ├── contact.go             # Estrutura do contato
-    │   └── responses.go           # Estruturas de resposta
-    ├── 🔧 services/               # Lógica de negócio
-    │   └── contact_service.go     # Serviços de contato
-    ├── 🛠️ utils/                  # Utilitários
-    │   └── responses.go           # Helpers de resposta
-    └── ✅ validators/             # Validadores brasileiros
-        ├── cpf.go                 # Validação de CPF
-        ├── cnpj.go                # Validação de CNPJ
-        ├── phone.go               # Validação de telefone
-        ├── sanitizer.go           # Sanitização de dados
-        ├── examples.go            # Exemplos de uso
-        └── validators_test.go     # Testes dos validadores
-└── 📁 scripts/
-    ├── run-seed.sh                # Script de seed
-    └── seed.go                    # Dados de exemplo
+├── 🧪 integration_test.go         # Testes de integração
+└── 📖 README.md                   # Esta documentação
 ```
+
+## 🚀 Quick Start
+
+### Opção 1: Docker (Recomendado)
+```bash
+# Clonar repositório
+git clone https://github.com/mvcoladello/api-go-crm-contatos.git
+cd api-go-crm-contatos
+
+# Executar com Docker
+make docker-up
+
+# A API estará disponível em http://localhost:8080
+# Documentação Swagger em http://localhost:8080/docs/
+```
+
+### Opção 2: Execução Local
+```bash
+# Instalar dependências
+make install-deps
+
+# Executar migrações
+make db-migrate
+
+# Popular banco com dados de exemplo
+make seed
+
+# Executar aplicação
+make dev
+
+# A API estará disponível em http://localhost:3000
+# Documentação Swagger em http://localhost:3000/docs/
+```
+
+## 📚 Documentação da API
+
+### Swagger UI
+Acesse a documentação interativa em:
+- **Local**: http://localhost:3000/docs/
+- **Docker**: http://localhost:8080/docs/
+
+### Endpoints Principais
+
+| Método | Endpoint | Descrição | Rate Limit |
+|--------|----------|-----------|------------|
+| GET | `/health` | Health check | Sem limite |
+| GET | `/contacts` | Listar contatos | 100 req/s |
+| POST | `/contacts` | Criar contato | 100 req/s |
+| GET | `/contacts/{id}` | Buscar contato | 100 req/s |
+| PUT | `/contacts/{id}` | Atualizar contato | 100 req/s |
+| DELETE | `/contacts/{id}` | Deletar contato | 100 req/s |
 
 ## 🚦 Endpoints da API
 
@@ -245,41 +323,133 @@ docker-compose -f docker-compose.dev.yml up -d
 make docker-dev
 ```
 
+## 🗄️ Sistema de Migrations
+
+### Comandos de Migration
+```bash
+# Executar todas as migrações pendentes
+make db-migrate
+
+# Verificar status das migrações
+make db-migrate-status
+
+# Reverter última migração
+make db-migrate-down
+
+# Resetar todas as migrações (cuidado!)
+make db-migrate-reset
+```
+
+### Estrutura das Migrations
+As migrations estão organizadas no diretório `migrations/` e incluem:
+- `001_create_contacts_table` - Criação da tabela de contatos
+- `002_add_indexes_to_contacts` - Adição de índices para performance
+
+### Adicionando Nova Migration
+```go
+// Em migrations/migrations.go
+{
+    ID:          "003_new_migration",
+    Description: "Descrição da nova migração",
+    Up:          newMigrationUp,
+    Down:        newMigrationDown,
+}
+```
+
+## 🛡️ Rate Limiting
+
+### Configuração por Endpoint
+- **Endpoints gerais**: 100 req/s com burst de 200
+- **Health check**: Sem limite
+- **Endpoints sensíveis**: 5 req/s com burst de 10
+
+### Configuração Customizada
+```go
+// Rate limit personalizado
+app.Use(middleware.RateLimiter(middleware.RateLimitConfig{
+    Rate:  rate.Limit(50),
+    Burst: 100,
+    KeyGenerator: func(c *fiber.Ctx) string {
+        return c.IP() + ":" + c.Get("User-Agent")
+    },
+}))
+```
+
+### Monitoramento
+```bash
+# Verificar estatísticas de rate limiting
+curl http://localhost:3000/admin/rate-limit/stats
+```
+
 ## 🧪 Testes
 
-### Executar todos os testes
+### Executar Todos os Testes
 ```bash
-# Testes completos
+# Testes unitários
 make test
 
 # Testes com cobertura
-make test-coverage
+make coverage
 
-# Apenas validadores
-make test-validators
+# Testes de performance (benchmarks)
+make benchmark
+
+# Testes de condições de corrida
+make race
+
+# Todos os tipos de teste
+make test-all
 ```
 
-### Testes de API
+### Estrutura de Testes
+- **Unitários**: Cada módulo possui seu arquivo `*_test.go`
+- **Integração**: `integration_test.go` testa fluxos completos
+- **Migrations**: `migrations/migrations_test.go` testa sistema de migração
+- **Rate Limiting**: `internal/middleware/rate_limit_test.go`
+
+### Cobertura de Testes
 ```bash
-# Script de teste da API (necessário que a API esteja rodando)
-./test_api.sh
+# Gerar relatório HTML de cobertura
+make coverage
+open coverage.html
 ```
 
-## 📊 Comandos Make Disponíveis
+## 🔧 Comandos do Makefile
 
+### Desenvolvimento
 ```bash
-make help              # Mostra todos os comandos disponíveis
-make build             # Compila a aplicação
-make run               # Executa localmente
-make dev               # Executa com hot-reload
-make test              # Executa testes
-make test-coverage     # Testes com cobertura
-make seed              # Popula banco com dados de exemplo
-make clean             # Limpa arquivos de build
-make docker-build      # Constrói imagem Docker
-make docker-up         # Inicia containers
-make docker-down       # Para containers
-make docker-logs       # Visualiza logs
+make help          # Lista todos os comandos disponíveis
+make dev           # Executa em modo desenvolvimento (hot-reload)
+make build         # Compila a aplicação
+make run           # Executa a aplicação compilada
+```
+
+### Banco de Dados
+```bash
+make db-migrate    # Executa migrações
+make db-reset      # Reseta banco e reaplica migrações
+make seed          # Popula banco com dados de exemplo
+```
+
+### Docker
+```bash
+make docker-build  # Constrói imagem Docker
+make docker-up     # Sobe containers
+make docker-down   # Para containers
+make docker-logs   # Visualiza logs
+```
+
+### Qualidade de Código
+```bash
+make lint          # Executa linter
+make format        # Formata código
+make security-scan # Scan de segurança
+```
+
+### Documentação
+```bash
+make swagger-gen   # Gera documentação Swagger
+make swagger-serve # Serve documentação localmente
 ```
 
 ## 🔍 Validadores Brasileiros
@@ -357,6 +527,11 @@ CREATE TABLE contacts (
 ### CORS
 - Configuração flexível para desenvolvimento e produção
 - Suporte a diferentes origens e métodos
+
+### Rate Limiting
+- Limitação de requisições por IP e por endpoint
+- Proteção contra ataques de força bruta e DDoS
+- Configuração de janelas de tempo e limites personalizados
 
 ## 🐳 Docker e Deploy
 

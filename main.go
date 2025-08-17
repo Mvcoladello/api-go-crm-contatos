@@ -2,11 +2,14 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/swagger"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/handlers"
+	"github.com/mvcoladello/api-go-crm-contatos/internal/middleware"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/models"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/services"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/utils"
@@ -41,6 +44,20 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept",
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
+
+	// Rate limiting
+	app.Use(middleware.RateLimitByAPI())
+
+	// Swagger documentation
+	app.Get("/docs/*", swagger.HandlerDefault)
+
+	// Health check endpoint
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status":    "OK",
+			"timestamp": time.Now().Format(time.RFC3339),
+		})
+	})
 
 	// Configura as rotas
 	handlers.SetupRoutes(app, contactService)
