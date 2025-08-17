@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - GO_ENV=development
+      - DB_PATH=/app/data/crm_contatos.db
+    volumes:
+      - ./:/app
+      - db_data:/app/data
+    restart: unless-stopped
+    command: go run main.go
+    networks:
+      - crm_network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  crm_network:
+    driver: bridge
