@@ -74,8 +74,7 @@ func (h *ContactHandler) CreateContact(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&contact); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error":   "Dados inválidos no corpo da requisição",
-			"details": err.Error(),
+			"error": "Dados inválidos no corpo da requisição",
 		})
 	}
 
@@ -87,20 +86,8 @@ func (h *ContactHandler) CreateContact(c *fiber.Ctx) error {
 			})
 		}
 
-		// Verifica se é erro de validação
-		if err.Error() == "nome é obrigatório" ||
-			err.Error() == "email inválido" ||
-			err.Error() == "CPF/CNPJ inválido" ||
-			err.Error() == "telefone inválido" {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-				"error":   "Dados inválidos",
-				"details": err.Error(),
-			})
-		}
-
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Erro interno do servidor",
-			"details": err.Error(),
+			"error": "Erro interno do servidor",
 		})
 	}
 
