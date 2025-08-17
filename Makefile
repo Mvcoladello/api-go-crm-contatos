@@ -35,10 +35,23 @@ test: ## Executa os testes
 	@echo "🧪 Executando testes..."
 	go test -v ./...
 
+test-validators: ## Executa apenas os testes dos validadores
+	@echo "🧪 Executando testes dos validadores..."
+	go test -v ./internal/validators/
+
 test-coverage: ## Executa testes com cobertura
 	@echo "📊 Executando testes com cobertura..."
 	go test -v -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
+
+test-coverage-validators: ## Executa testes dos validadores com cobertura
+	@echo "📊 Executando testes dos validadores com cobertura..."
+	go test -v -coverprofile=validators_coverage.out ./internal/validators/
+	go tool cover -html=validators_coverage.out -o validators_coverage.html
+
+bench-validators: ## Executa benchmarks dos validadores
+	@echo "⚡ Executando benchmarks dos validadores..."
+	go test -bench=. ./internal/validators/
 
 # Docker Commands
 docker-build: ## Constrói a imagem Docker
