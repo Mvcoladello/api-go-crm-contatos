@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/mvcoladello/api-go-crm-contatos/internal/utils"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/validators"
 )
 
@@ -13,23 +14,17 @@ func ProcessInputMiddleware() fiber.Handler {
 			var body map[string]interface{}
 
 			if err := c.BodyParser(&body); err != nil {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error": "Formato de dados inválido",
-				})
+				return utils.SendBadRequestError(c, "Formato de dados inválido")
 			}
 
 			if nome, ok := body["nome"].(string); ok {
 				body["nome"] = validators.SanitizeName(nome)
 
 				if body["nome"].(string) == "" {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Nome é obrigatório",
-					})
+					return utils.SendValidationError(c, "Nome é obrigatório")
 				}
 				if len(body["nome"].(string)) < 2 || len(body["nome"].(string)) > 255 {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Nome deve ter entre 2 e 255 caracteres",
-					})
+					return utils.SendValidationError(c, "Nome deve ter entre 2 e 255 caracteres")
 				}
 			}
 
@@ -37,14 +32,10 @@ func ProcessInputMiddleware() fiber.Handler {
 				body["email"] = validators.SanitizeEmail(email)
 
 				if body["email"].(string) == "" {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Email é obrigatório",
-					})
+					return utils.SendValidationError(c, "Email é obrigatório")
 				}
 				if !validators.ValidateEmail(body["email"].(string)) {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Email inválido",
-					})
+					return utils.SendValidationError(c, "Email inválido")
 				}
 			}
 
@@ -52,14 +43,10 @@ func ProcessInputMiddleware() fiber.Handler {
 				body["cpf_cnpj"] = validators.SanitizeInput(cpfCnpj)
 
 				if body["cpf_cnpj"].(string) == "" {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "CPF/CNPJ é obrigatório",
-					})
+					return utils.SendValidationError(c, "CPF/CNPJ é obrigatório")
 				}
 				if !validators.ValidateDocument(body["cpf_cnpj"].(string)) {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "CPF/CNPJ inválido",
-					})
+					return utils.SendValidationError(c, "CPF/CNPJ inválido")
 				}
 			}
 
@@ -67,22 +54,16 @@ func ProcessInputMiddleware() fiber.Handler {
 				body["telefone"] = validators.SanitizeInput(telefone)
 
 				if body["telefone"].(string) == "" {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Telefone é obrigatório",
-					})
+					return utils.SendValidationError(c, "Telefone é obrigatório")
 				}
 				if !validators.ValidateBrazilianPhone(body["telefone"].(string)) {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"error": "Telefone inválido",
-					})
+					return utils.SendValidationError(c, "Telefone inválido")
 				}
 			}
 
 			processedBody, err := json.Marshal(body)
 			if err != nil {
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"error": "Erro interno do servidor",
-				})
+				return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 			}
 
 			c.Request().SetBody(processedBody)

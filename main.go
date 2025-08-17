@@ -9,6 +9,7 @@ import (
 	"github.com/mvcoladello/api-go-crm-contatos/internal/handlers"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/models"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/services"
+	"github.com/mvcoladello/api-go-crm-contatos/internal/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -26,13 +27,10 @@ func main() {
 	// Inicializa o Fiber
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			code := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
-				code = e.Code
+				return utils.SendErrorResponse(c, e.Code, models.ErrCodeInternalServer, e.Message, "")
 			}
-			return c.Status(code).JSON(fiber.Map{
-				"error": err.Error(),
-			})
+			return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 		},
 	})
 

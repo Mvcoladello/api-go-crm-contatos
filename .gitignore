@@ -1,0 +1,64 @@
+# Binários compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+api-go-crm-contatos
+
+# Arquivos de teste
+*.test
+
+# Arquivos de cobertura de teste
+*.out
+
+# Dependências do Go
+go.sum
+
+# Arquivos de banco de dados
+*.db
+*.sqlite
+*.sqlite3
+crm_contatos.db
+
+# Logs
+*.log
+
+# Arquivos do sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arquivos temporários
+tmp/
+temp/
+
+# Arquivos de configuração local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Certificados e chaves
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx

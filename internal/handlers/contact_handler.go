@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/models"
 	"github.com/mvcoladello/api-go-crm-contatos/internal/services"
+	"github.com/mvcoladello/api-go-crm-contatos/internal/utils"
 )
 
 type ContactHandler struct {
@@ -24,16 +26,10 @@ func NewContactHandler(contactService *services.ContactService) *ContactHandler 
 func (h *ContactHandler) GetContacts(c *fiber.Ctx) error {
 	contacts, err := h.contactService.GetAllContacts()
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Erro interno do servidor",
-			"details": err.Error(),
-		})
+		return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"data":  contacts,
-		"total": len(contacts),
-	})
+	return utils.SendSuccessResponseWithTotal(c, http.StatusOK, "", contacts, len(contacts))
 }
 
 // GetContact busca um contato por ID
@@ -43,28 +39,18 @@ func (h *ContactHandler) GetContact(c *fiber.Ctx) error {
 
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error":   "ID inválido",
-			"details": "O ID deve ser um UUID válido",
-		})
+		return utils.SendBadRequestError(c, "ID deve ser um UUID válido")
 	}
 
 	contact, err := h.contactService.GetContactByID(id)
 	if err != nil {
 		if err.Error() == "contato não encontrado" {
-			return c.Status(http.StatusNotFound).JSON(fiber.Map{
-				"error": "Contato não encontrado",
-			})
+			return utils.SendNotFoundError(c, "Contato não encontrado")
 		}
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Erro interno do servidor",
-			"details": err.Error(),
-		})
+		return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"data": contact,
-	})
+	return utils.SendSuccessResponse(c, http.StatusOK, "", contact)
 }
 
 // CreateContact cria um novo contato
@@ -73,28 +59,18 @@ func (h *ContactHandler) CreateContact(c *fiber.Ctx) error {
 	var contact models.Contact
 
 	if err := c.BodyParser(&contact); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error": "Dados inválidos no corpo da requisição",
-		})
+		return utils.SendBadRequestError(c, "Dados inválidos no corpo da requisição")
 	}
 
 	if err := h.contactService.CreateContact(&contact); err != nil {
-		if err.Error() == "UNIQUE constraint failed: contacts.email" ||
-			err.Error() == "UNIQUE constraint failed: contacts.cpf_cnpj" {
-			return c.Status(http.StatusConflict).JSON(fiber.Map{
-				"error": "Email ou CPF/CNPJ já cadastrado",
-			})
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return utils.SendConflictError(c, "Email ou CPF/CNPJ já cadastrado")
 		}
 
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Erro interno do servidor",
-		})
+		return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 	}
 
-	return c.Status(http.StatusCreated).JSON(fiber.Map{
-		"message": "Contato criado com sucesso",
-		"data":    contact,
-	})
+	return utils.SendSuccessResponse(c, http.StatusCreated, "Contato criado com sucesso", contact)
 }
 
 // DeleteContact deleta um contato
@@ -104,25 +80,15 @@ func (h *ContactHandler) DeleteContact(c *fiber.Ctx) error {
 
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error":   "ID inválido",
-			"details": "O ID deve ser um UUID válido",
-		})
+		return utils.SendBadRequestError(c, "ID deve ser um UUID válido")
 	}
 
 	if err := h.contactService.DeleteContact(id); err != nil {
 		if err.Error() == "contato não encontrado" {
-			return c.Status(http.StatusNotFound).JSON(fiber.Map{
-				"error": "Contato não encontrado",
-			})
+			return utils.SendNotFoundError(c, "Contato não encontrado")
 		}
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Erro interno do servidor",
-			"details": err.Error(),
-		})
+		return utils.SendInternalServerError(c, "Erro interno do servidor", err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"message": "Contato deletado com sucesso",
-	})
+	return utils.SendSuccessResponse(c, http.StatusOK, "Contato deletado com sucesso", nil)
 }
